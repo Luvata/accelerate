@@ -303,6 +303,9 @@ class Accelerator:
         if self.native_amp:
             model.forward = torch.cuda.amp.autocast()(model.forward)
             model.forward = convert_outputs_to_fp32(model.forward)
+        if self.distributed_type == DistributedType.TPU:
+            import torch_xla.distributed.xla_multiprocessing as xmp
+            model = xmp.MpModelWrapper(model)
         return model
 
     def _prepare_deepspeed(self, *args):
